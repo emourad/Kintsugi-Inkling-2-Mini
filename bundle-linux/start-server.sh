@@ -76,7 +76,13 @@ if [ ! -f "$MODEL" ]; then
   echo "  (check it with: sha256sum models/$MODEL_NAME). Or set INKLING_MODEL to the file's path."
   exit 1
 fi
-[ -x "$BIN/llama-server" ] || { echo "llama-server not found in $BIN"; exit 1; }
+LLAMA_SERVER="${LLAMA_SERVER:-$(command -v llama-server 2>/dev/null)}"
+
+if [ -z "$LLAMA_SERVER" ] || [ ! -x "$LLAMA_SERVER" ]; then
+  echo "llama-server not found."
+  echo "Set LLAMA_SERVER to its full executable path."
+  exit 1
+fi
 command -v nvidia-smi > /dev/null || { echo "nvidia-smi not found: install the NVIDIA driver"; exit 1; }
 command -v curl > /dev/null || { echo "curl not found: install curl (the start uses it to check the server)"; exit 1; }
 EFFORT_WORDS="none,minimal,low,medium,high,xhigh,max"
@@ -347,7 +353,7 @@ if [ $DRY = 1 ]; then echo "kwargs $LLAMA_ARG_CHAT_TEMPLATE_KWARGS"; echo "args 
 
 LOGS="$ROOT/logs"; mkdir -p "$LOGS"
 LOG="$LOGS/server-$PORT.log"
-setsid nohup "$BIN/llama-server" "${ARGS[@]}" > "$LOG.out" 2> "$LOG" < /dev/null &
+setsid nohup "$LLAMA_SERVER" "${ARGS[@]}" > "$LOG.out" 2> "$LOG" < /dev/null &
 SP=$!
 echo "$SP" > "$LOGS/server-$PORT.pid"
 echo "pid    $SP   log $LOG"
