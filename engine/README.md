@@ -53,11 +53,14 @@ are built from this exact archive, so you can rebuild it and compare.
 | Engine | Bundles | Source asset | sha256 |
 |---|---|---|---|
 | `a20cc419b` | v1.0 (Windows and Linux) | `Kintsugi-Inkling-2-Mini-v1.0-engine-src-a20cc419b.tar.gz` (40,078,993 bytes) | `d0d934f5c8f6763477f4d8612000e6770e27b6260b426aa876460725319c6663` |
+| `a20cc419b` | v1.0.1 (Windows and Linux; the same archive, more GPU code) | `Kintsugi-Inkling-2-Mini-v1.0.1-engine-src-a20cc419b.tar.gz` (40,078,993 bytes) | `d0d934f5c8f6763477f4d8612000e6770e27b6260b426aa876460725319c6663` |
 
 ## Build
 
 The release builds leave out the Mirai S kernels that are also in this source (`GGML_CUDA_MIRAI=OFF`) and build the web
-UI from the `tools/ui/dist` folder of the source archive (no download). The configure lines of the v1.0 engines:
+UI from the `tools/ui/dist` folder of the source archive (no download). The configure lines of the v1.0 engines
+are below. The v1.0.1 engines use the same lines with `-DCMAKE_CUDA_ARCHITECTURES="75-real;86-real;89-real;90;120-real"`
+(CMake turns `120-real` into `120a-real`; the plain `90` gives the H100 / H200 code and the portable compute_90 PTX):
 
 Windows (MSVC 19.44, CUDA 13):
 
@@ -76,10 +79,14 @@ cmake --build <build> --target llama-server llama-perplexity test-backend-ops
 - **Linux:** `-DGGML_CUDA_NCCL=OFF` matters: with NCCL on, the engine needs `libnccl.so.2`, which a machine with only
   the NVIDIA driver does not have. The bundle also carries `libgomp.so.1` (see its NOTICE). The `tools/ui/dist` folder
   of the source archive is used before any download of a prebuilt UI.
-- **One GPU family only:** set `CMAKE_CUDA_ARCHITECTURES` to it, for example `86-real` (RTX 30) or `89-real`
-  (RTX 40). This release supports RTX 30 and 40 cards; the build also holds `75-real` code, which is not supported
-  for this model yet.
-- **CUDA toolkit:** 12.2 or newer. The Windows bundle uses CUDA 13; the Linux bundle uses CUDA 12.8.
+- **One GPU family only:** set `CMAKE_CUDA_ARCHITECTURES` to it, for example `86-real` (RTX 30), `89-real`
+  (RTX 40), `90-real` (H100 / H200) or `120-real` (RTX 50). v1.0.1 supports RTX 30, 40 and 50 cards and H100 / H200;
+  the build also holds `75-real` code, which is not supported for this model yet.
+- **Portable code (PTX):** a card that has no native code in the build runs the compute_90 PTX, but this engine does
+  not set its kernel choices for such a card. The bundle launchers stop on such cards (for example compute capability
+  10.0 or 12.1).
+- **CUDA toolkit:** 12.2 or newer (12.8 or newer for RTX 50 code). The Windows bundle uses CUDA 13; the Linux bundle
+  uses CUDA 12.8.
 
 ## Known limits
 

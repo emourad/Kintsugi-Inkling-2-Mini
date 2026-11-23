@@ -114,6 +114,8 @@ Speed work on Inkling 2 Mini:
 ## Runtime pieces
 
 - **NVIDIA**: the CUDA runtime and cuBLAS libraries in `bin` (NVIDIA CUDA EULA; not covered by our licences).
+- **The authors of the npm packages in the built-in web chat page** (the llama.cpp web UI): each package, its licence
+  and its copyright text are in `licenses/web-ui-THIRD-PARTY.txt` in the bundles.
 - **Bytecode Alliance (wasmtime)** and **VMware Labs (WebAssembly Language Runtimes)**, with **CPython (PSF)**: the
   sandbox of the tool layer (the code interpreter is off in this build).
 

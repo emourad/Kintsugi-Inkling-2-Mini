@@ -1,4 +1,4 @@
-# Kintsugi for Inkling 2 Mini v1.0 for Linux (x86_64, RTX 30 / 40, 12 GB)
+# Kintsugi for Inkling 2 Mini v1.0.1 for Linux (x86_64, RTX 30 / 40 / 50, H100 / H200, 12 GB)
 
 ![Kintsugi for Inkling 2 Mini](inkling-card.png)
 
@@ -11,8 +11,8 @@ https://github.com/professorpalmer/Kintsugi-Inkling-2-Mini/issues.
 
 ## What you need
 
-- An NVIDIA RTX 30 or 40 series card with 12 GB of VRAM or more. RTX 20 (Turing) is not
-  supported; RTX 50 (Blackwell) not yet (see "Hardware").
+- An NVIDIA RTX 30, 40 or 50 series card with 12 GB of VRAM or more, or an H100 / H200 (RTX 50 and Hopper from
+  v1.0.1). RTX 20 (Turing) is not supported (see "Hardware").
 - NVIDIA driver 570 or newer. The engine uses the CUDA 12.8 runtime (in `bin/`). On drivers older than the 580
   family, the engine uses another type of pinned system memory for the long context, and writes one WARN line about it.
 - Linux x86_64 with glibc 2.34 or newer and the libstdc++ of GCC 12 or newer (the engine needs GLIBC_2.34 and
@@ -26,22 +26,26 @@ https://github.com/professorpalmer/Kintsugi-Inkling-2-Mini/issues.
 
 | Hardware | Status |
 |---|---|
-| RTX 40 (Ada) | Supported: every release check ran on an RTX 4070 (Windows and Linux). |
-| RTX 30 (Ampere) | Supported: the release engine was checked on an RTX 3080 Ti (Linux): it starts with the launcher defaults, 24 / 24 needles at 32k, the identity prompts answer, top-1 agreement 97.8 %. Its mean KL is 7.5 % lower than on the RTX 4070; without one near-tie token in the 4070 reference run the two cards differ by 0.6 % (the same kernels; only the order of sums differs). |
-| RTX 50 (Blackwell), H100 / H200 (Hopper) | Not yet: this engine has no code for them. Planned for v1.0.1. |
+| RTX 40 (Ada) | Supported: every release check ran on an RTX 4070 (Windows and Linux). The v1.0.1 Windows engine gives the same output as v1.0 on it (KL check and 50 / 50 identity prompts token-identical). |
+| RTX 30 (Ampere) | Supported: the v1.0 release engine (the same source as v1.0.1) was checked on an RTX 3080 Ti (Linux): it starts with the launcher defaults, 24 / 24 needles at 32k, the identity prompts answer, top-1 agreement 97.8 %. Its mean KL is 7.5 % lower than on the RTX 4070; without one near-tie token in the 4070 reference run the two cards differ by 0.6 % (the same kernels; only the order of sums differs). |
+| RTX 50 (Blackwell, desktop) | Supported from v1.0.1. The Linux engine was checked on an RTX 5060 Ti 16 GB: it starts with the launcher defaults (all 262,144 cells in VRAM), mean KL 0.0397 and top-1 92.60 % on our 10-document check (RTX 4070: 0.0400 and 92.51 %), 24 / 24 needles at 32k, the 50 identity prompts answer, the same 50 answers with PDL on and off, 0 CUDA errors. The Windows engine has the same code for these cards, but we did not run it on an RTX 50 card. RTX 50 laptop GPUs and RTX PRO Blackwell cards: not checked. |
+| H100 / H200 (Hopper) | Supported from v1.0.1. The Linux engine was checked on an H100 PCIe 80 GB: it starts with the launcher defaults (all 262,144 cells in VRAM), mean KL 0.0401 and top-1 92.57 % on the same check, 24 / 24 needles at 32k, the 50 identity prompts answer, the same 50 answers with PDL on and off, 0 CUDA errors. H200 has the same code (compute capability 9.0) but was not checked. The Windows engine has the code too, but we did not run it on a Hopper card. |
+| Other Blackwell (B200 / GB200, GB10 / DGX Spark) | Not supported: this engine has no native code for them, and it does not run the portable code yet. The launcher stops with a message. |
+| A100, V100 and older cards | Not supported: this engine has no code for them. The launcher stops with a message. |
 | RTX 20 (Turing) | Not supported: it fails our exact-output checks and runs 6-14x slower than an RTX 4070. |
 | AMD Radeon | Not yet: after Kintsugi-27B's AMD release (test builds exist). |
 | Apple Silicon | Not yet: needs its own port; not scheduled. |
+| Intel GPUs | Not supported: this engine has no code for them. |
 
 You need 12 GB of VRAM or more, and an NVIDIA driver 580 or newer (Windows) or 570 or newer (Linux). 32 GB of system
 RAM or more is best for very long chats.
 
 ## Download and start
 
-1. Download `Kintsugi-Inkling-2-Mini-v1.0-linux-x86_64.tar.gz` from the Releases page and unpack it:
+1. Download `Kintsugi-Inkling-2-Mini-v1.0.1-linux-x86_64.tar.gz` from the Releases page and unpack it:
 
    ```
-   tar -xzf Kintsugi-Inkling-2-Mini-v1.0-linux-x86_64.tar.gz
+   tar -xzf Kintsugi-Inkling-2-Mini-v1.0.1-linux-x86_64.tar.gz
    cd Kintsugi-Inkling-2-Mini
    ```
 
@@ -138,6 +142,11 @@ INKLING_SLOTS=2 ./start-server.sh --wait
   tested with a simulated desktop load of 500 / 900 MiB (VRAM held by a separate process); not yet with a display on the same card.
 - Tested with an RTX 4070 on Ubuntu 24.04, driver 610.57.04, with only the NVIDIA driver (no CUDA toolkit, no NCCL).
   There the launcher keeps 236,288 cells in VRAM (the Linux driver reserves more memory than the Windows one).
+- The v1.0.1 Linux engine was checked on an RTX 5060 Ti 16 GB (driver 595.99.02) and on an H100 PCIe 80 GB (driver
+  610.57.04), both in an Ubuntu 22.04 container; on both cards the whole window (262,144 cells) is in VRAM. The RTX 4070
+  check of v1.0.1 ran with the Windows engine.
+- Other Blackwell cards (B200, GB10), A100 / V100, AMD, Intel and Apple Silicon: not supported (see "Hardware"); the
+  launcher stops on an NVIDIA card that has no code in this bundle.
 - Use of the model is subject to the Thinking Machines Model Acceptable Use Policy (see NOTICE).
 
 Changes: `CHANGELOG.md`. Licences and credits: `LICENSE`, `NOTICE`, `CREDITS.md`.

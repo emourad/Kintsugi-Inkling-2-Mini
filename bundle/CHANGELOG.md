@@ -9,6 +9,28 @@ page](https://github.com/professorpalmer/Kintsugi-Inkling-2-Mini/releases) also 
 ## Planned for a later version
 
 - RTX 20 (Turing) cards.
+- The portable code path (other cards with compute capability 9.0 or newer, for example B200 or GB10).
+
+## v1.0.1 (2026-11-23)
+
+- New cards: RTX 50 (Blackwell, compute capability 12.0) and H100 / H200 (Hopper, 9.0). The engine is the same source
+  as v1.0 (commit `a20cc419b`, build 10944), now built with native code for these cards too
+  (`75-real;86-real;89-real;90;120-real`). The Linux engine was checked on an RTX 5060 Ti 16 GB and on an H100 PCIe
+  80 GB: the launcher defaults, a KL check, 24 / 24 needles at 32k, 50 identity prompts, PDL on and off, 0 CUDA errors
+  (numbers in the README, "Hardware"). The Windows engine has the same code for these cards, but we did not run it on
+  one of them.
+- The launchers check the card at start: a card with no code in this bundle (older than RTX 20, V100 / A100 / A30,
+  and newer cards such as B200 or GB10) stops with a message; RTX 20 (Turing) gets a note.
+- The bundles now hold the licence list of the built-in web chat page and its npm code:
+  `licenses/web-ui-THIRD-PARTY.txt` (202 items: MIT, ISC, BSD-3-Clause, Apache-2.0, MPL-2.0 OR Apache-2.0,
+  Unlicense). v1.0 did not have this list. The NOTICE names it.
+- RTX 30 / 40: the same output as v1.0 (checked on an RTX 4070: KL check and 50 / 50 identity prompts token-identical).
+  The model file does not change. If you use v1.0 on an RTX 30 / 40 card, you do not need to update, except to get the
+  licence list.
+- Windows: `Kintsugi-Inkling-2-Mini-v1.0.1-win-x64.zip`, sha256 `73048398752fcc214c7b99dcb867aac2c8b597ed4f66b5086dac9a465703033a`.
+- Linux: `Kintsugi-Inkling-2-Mini-v1.0.1-linux-x86_64.tar.gz`, sha256 `68031ebcb913f17db8198cd4e698738953aebcfa83c4b6d3c7229aef5370dba9`.
+- Engine source: `Kintsugi-Inkling-2-Mini-v1.0.1-engine-src-a20cc419b.tar.gz`, the same file as the v1.0 source asset
+  (sha256 `d0d934f5c8f6763477f4d8612000e6770e27b6260b426aa876460725319c6663`).
 
 ## v1.0 (2026-11-23)
 

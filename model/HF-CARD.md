@@ -63,19 +63,24 @@ Details, settings and dates: [benchmarks](https://github.com/professorpalmer/Kin
    (Linux). The server is OpenAI-compatible on `http://127.0.0.1:8080/v1` and works with Claude Code, Codex, Pi and
    OpenCode.
 
-Needs: an NVIDIA RTX 30 / 40 card with 12 GB or more; driver 580+ (Windows) or 570+ (Linux); 32 GB of system
+Needs: an NVIDIA RTX 30 / 40 / 50 card with 12 GB or more, or an H100 / H200 (RTX 50 and Hopper from bundle v1.0.1;
+see "Hardware"); driver 580+ (Windows) or 570+ (Linux); 32 GB of system
 RAM is best for very long chats.
 
 ## Hardware
 
 | Hardware | Status |
 |---|---|
-| RTX 40 (Ada) | Supported: every release check ran on an RTX 4070 (Windows and Linux). |
-| RTX 30 (Ampere) | Supported: the release engine was checked on an RTX 3080 Ti (Linux): it starts with the launcher defaults, 24 / 24 needles at 32k, the identity prompts answer, top-1 agreement 97.8 %. Its mean KL is 7.5 % lower than on the RTX 4070; without one near-tie token in the 4070 reference run the two cards differ by 0.6 % (the same kernels; only the order of sums differs). |
-| RTX 50 (Blackwell), H100 / H200 (Hopper) | Not yet: this engine has no code for them. Planned for v1.0.1. |
+| RTX 40 (Ada) | Supported: every release check ran on an RTX 4070 (Windows and Linux). The v1.0.1 Windows engine gives the same output as v1.0 on it (KL check and 50 / 50 identity prompts token-identical). |
+| RTX 30 (Ampere) | Supported: the v1.0 release engine (the same source as v1.0.1) was checked on an RTX 3080 Ti (Linux): it starts with the launcher defaults, 24 / 24 needles at 32k, the identity prompts answer, top-1 agreement 97.8 %. Its mean KL is 7.5 % lower than on the RTX 4070; without one near-tie token in the 4070 reference run the two cards differ by 0.6 % (the same kernels; only the order of sums differs). |
+| RTX 50 (Blackwell, desktop) | Supported from v1.0.1. The Linux engine was checked on an RTX 5060 Ti 16 GB: it starts with the launcher defaults (all 262,144 cells in VRAM), mean KL 0.0397 and top-1 92.60 % on our 10-document check (RTX 4070: 0.0400 and 92.51 %), 24 / 24 needles at 32k, the 50 identity prompts answer, the same 50 answers with PDL on and off, 0 CUDA errors. The Windows engine has the same code for these cards, but we did not run it on an RTX 50 card. RTX 50 laptop GPUs and RTX PRO Blackwell cards: not checked. |
+| H100 / H200 (Hopper) | Supported from v1.0.1. The Linux engine was checked on an H100 PCIe 80 GB: it starts with the launcher defaults (all 262,144 cells in VRAM), mean KL 0.0401 and top-1 92.57 % on the same check, 24 / 24 needles at 32k, the 50 identity prompts answer, the same 50 answers with PDL on and off, 0 CUDA errors. H200 has the same code (compute capability 9.0) but was not checked. The Windows engine has the code too, but we did not run it on a Hopper card. |
+| Other Blackwell (B200 / GB200, GB10 / DGX Spark) | Not supported: this engine has no native code for them, and it does not run the portable code yet. The launcher stops with a message. |
+| A100, V100 and older cards | Not supported: this engine has no code for them. The launcher stops with a message. |
 | RTX 20 (Turing) | Not supported: it fails our exact-output checks and runs 6-14x slower than an RTX 4070. |
 | AMD Radeon | Not yet: after Kintsugi-27B's AMD release (test builds exist). |
 | Apple Silicon | Not yet: needs its own port; not scheduled. |
+| Intel GPUs | Not supported: this engine has no code for them. |
 
 You need 12 GB of VRAM or more, and an NVIDIA driver 580 or newer (Windows) or 570 or newer (Linux). 32 GB of system
 RAM or more is best for very long chats.

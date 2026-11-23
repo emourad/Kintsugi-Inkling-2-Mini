@@ -35,6 +35,7 @@
 #                         path of a template file
 #   INKLING_CEILING_MIB   the card's usable limit in MiB (default: read from the driver, see below)
 #   INKLING_TEST_DRIVER   replaces the driver version that nvidia-smi gives (tests)
+#   INKLING_TEST_CC       replaces the compute capability that nvidia-smi gives (tests; v1.0.1 card check)
 set -u
 # the bundle folder, resolved (readlink -f): the same path whether the script, the folder or a parent is reached
 # through a symlink, so start-server.sh and stop.sh always agree on the layer and engine paths
@@ -126,6 +127,32 @@ stop_no_gpu() {
   echo "$1"
   exit 1
 }
+
+# ---- Card generation (v1.0.1): bin/ has native code for compute capability 7.5 / 8.6 / 8.9 (RTX 20 / 30 / 40), 9.0
+# (H100 / H200) and 12.0 (RTX 50). CUDA loads only the code of your card, so the code for the other cards costs no VRAM
+# or speed. bin/ also has portable code (compute_90 PTX), but this engine does not set its kernel choices for a card that
+# runs it (the Kintsugi-27B v1.1.2 fix F1 is not in it), so such cards (for example compute capability 10.0 or 12.1) stop
+# here. INKLING_TEST_CC=<x.y> replaces the value that nvidia-smi gives (tests).
+CC="$(pick TEST_CC '')"
+[ -z "$CC" ] && CC="$(nvidia-smi --query-gpu=compute_cap --format=csv,noheader -i 0 2> /dev/null | head -1 | tr -d ' ')"
+SUPPORTED="RTX 30 / 40 / 50 cards with 12 GB or more, and H100 / H200"
+if [[ "$CC" =~ ^([0-9]+)\.([0-9]+)$ ]]; then
+  CCMAJ=${BASH_REMATCH[1]}; CCMIN=${BASH_REMATCH[2]}; CCN=$((10 * CCMAJ + CCMIN))
+  if [ "$CCN" -lt 75 ]; then
+    echo "This NVIDIA card (compute capability $CC) is older than RTX 20 (Turing, 7.5): $PRODUCT has no code for it. Supported: $SUPPORTED."
+    exit 1
+  elif { [ "$CCMAJ" = 7 ] && [ "$CCN" -ne 75 ]; } || { [ "$CCMAJ" = 8 ] && [ "$CCMIN" -lt 6 ]; }; then
+    echo "This NVIDIA card (compute capability $CC, for example a V100 / A100 / A30) has no code in this bundle. Supported: $SUPPORTED."
+    exit 1
+  elif [ "$CCN" -ge 90 ] && [ "$CCN" -ne 90 ] && [ "$CCN" -ne 120 ]; then
+    echo "This NVIDIA card (compute capability $CC) has no native code in this bundle, and $PRODUCT does not run the portable code in this version. Supported: $SUPPORTED."
+    exit 1
+  elif [ "$CCN" -eq 75 ]; then
+    echo "note   RTX 20 (Turing, compute capability 7.5) is not tested with $PRODUCT in this version"
+  fi
+else
+  echo "WARN   could not read the card's compute capability from nvidia-smi: the card check is skipped"
+fi
 
 # ---- VRAM line: how many K/V cells fit in VRAM; the rest of the window lives in system RAM -----------------------------
 # Inkling 2 Mini runs layers 6-17 three times (the loop), so each token has 48 attention applications, each with its own

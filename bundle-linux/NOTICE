@@ -1,4 +1,4 @@
-Kintsugi for Inkling 2 Mini v1.0 for Linux (x86_64) - notices
+Kintsugi for Inkling 2 Mini v1.0.1 for Linux (x86_64) - notices
 
 Our files in this bundle (start-server.sh, stop.sh, the layer in layer/, README.md, CREDITS.md, HARNESSES.md,
 CHANGELOG.md and the other text files) are licensed under the Apache License, Version 2.0 (see LICENSE).
@@ -37,7 +37,7 @@ Third-party software in this bundle:
    banded kernel, background and delta saves, the host-memory fallback for older drivers, the repetition guard, the
    two-slot mode and the other serving changes) are under the same MIT License. The Escha op for ggml comes from
    Ajay9o9's llama.cpp-escha (MIT). The engine source of this build is a release asset
-   (Kintsugi-Inkling-2-Mini-v1.0-engine-src-a20cc419b.tar.gz).
+   (Kintsugi-Inkling-2-Mini-v1.0.1-engine-src-a20cc419b.tar.gz).
 
 2. NVIDIA CUDA 12.8 runtime libraries in bin/ (libcudart.so.12, libcublas.so.12, libcublasLt.so.12) are NVIDIA's
    binaries, redistributed unmodified under the NVIDIA CUDA Toolkit End User License Agreement

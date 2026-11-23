@@ -34,6 +34,7 @@
 #                         path of a template file
 #   INKLING_CEILING_MIB   the card's usable limit in MiB (default: read from the driver, see below)
 #   INKLING_TEST_DRIVER   replaces the driver version that nvidia-smi gives (tests)
+#   INKLING_TEST_CC       replaces the compute capability that nvidia-smi gives (tests; v1.0.1 card check)
 param([int]$Port = 8080, [switch]$Wait, [switch]$DryRun)
 $ErrorActionPreference = 'Stop'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -117,6 +118,34 @@ if ($Driver -match '^(\d+)\.') {
     }
 } else {
     Write-Host "WARN   could not read the NVIDIA driver version from nvidia-smi: the driver check is skipped"
+}
+
+# ---- Card generation (v1.0.1): bin\ has native code for compute capability 7.5 / 8.6 / 8.9 (RTX 20 / 30 / 40), 9.0
+# (H100 / H200) and 12.0 (RTX 50). CUDA loads only the code of your card, so the code for the other cards costs no VRAM
+# or speed. bin\ also has portable code (compute_90 PTX), but this engine does not set its kernel choices for a card that
+# runs it (the Kintsugi-27B v1.1.2 fix F1 is not in it), so such cards (for example compute capability 10.0 or 12.1) stop
+# here. INKLING_TEST_CC=<x.y> replaces the value that nvidia-smi gives (tests).
+$Cc = Pick 'TEST_CC' ''
+if (-not $Cc) {
+    try { $Cc = "$((& nvidia-smi --query-gpu=compute_cap --format=csv,noheader -i 0 2>$null) | Select-Object -First 1)".Trim() } catch { $Cc = '' }
+}
+if ($Cc -match '^(\d+)\.(\d+)$') {
+    $CcMajor = [int]$Matches[1]; $CcMinor = [int]$Matches[2]; $CcN = 10 * $CcMajor + $CcMinor
+    $Supported = 'RTX 30 / 40 / 50 cards with 12 GB or more, and H100 / H200'
+    if ($CcN -lt 75) {
+        Write-Host "This NVIDIA card (compute capability $Cc) is older than RTX 20 (Turing, 7.5): $Product has no code for it. Supported: $Supported."
+        exit 1
+    } elseif (($CcMajor -eq 7 -and $CcN -ne 75) -or ($CcMajor -eq 8 -and $CcMinor -lt 6)) {
+        Write-Host "This NVIDIA card (compute capability $Cc, for example a V100 / A100 / A30) has no code in this bundle. Supported: $Supported."
+        exit 1
+    } elseif ($CcN -ge 90 -and $CcN -ne 90 -and $CcN -ne 120) {
+        Write-Host "This NVIDIA card (compute capability $Cc) has no native code in this bundle, and $Product does not run the portable code in this version. Supported: $Supported."
+        exit 1
+    } elseif ($CcN -eq 75) {
+        Write-Host "note   RTX 20 (Turing, compute capability 7.5) is not tested with $Product in this version"
+    }
+} else {
+    Write-Host "WARN   could not read the card's compute capability from nvidia-smi: the card check is skipped"
 }
 
 # ---- VRAM line: how many K/V cells fit in VRAM; the rest of the window lives in system RAM -----------------------------

@@ -1,4 +1,4 @@
-Kintsugi for Inkling 2 Mini v1.0 for Windows - notices
+Kintsugi for Inkling 2 Mini v1.0.1 for Windows - notices
 
 Our files in this bundle (start-server.ps1, stop.ps1, the layer in layer\, README.md, CREDITS.md, HARNESSES.md,
 CHANGELOG.md and the other text files) are licensed under the Apache License, Version 2.0 (see LICENSE).
@@ -36,7 +36,7 @@ Third-party software in this bundle:
    The fork's changes (the Escha / EXL3 trellis op for the experts, the tiered K/V cache, the quantized K/V in the
    banded kernel, background and delta saves, the repetition guard, the two-slot mode and the other serving changes)
    are under the same MIT License. The Escha op for ggml comes from Ajay9o9's llama.cpp-escha (MIT). The engine source
-   of this build is a release asset (Kintsugi-Inkling-2-Mini-v1.0-engine-src-a20cc419b.tar.gz).
+   of this build is a release asset (Kintsugi-Inkling-2-Mini-v1.0.1-engine-src-a20cc419b.tar.gz).
 
 2. NVIDIA CUDA runtime DLLs in bin\ (cudart64_13.dll, cublas64_13.dll, cublasLt64_13.dll, nvJitLink_130_0.dll,
    nvvm64_40_0.dll) are NVIDIA's binaries, redistributed unmodified under the NVIDIA CUDA Toolkit End User License
