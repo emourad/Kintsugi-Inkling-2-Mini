@@ -1,0 +1,61 @@
+Kintsugi for Inkling 2 Mini v1.0 for Linux (x86_64) - notices
+
+Our files in this bundle (start-server.sh, stop.sh, the layer in layer/, README.md, CREDITS.md, HARNESSES.md,
+CHANGELOG.md and the other text files) are licensed under the Apache License, Version 2.0 (see LICENSE).
+
+The model file is not in this bundle. Kintsugi-Inkling-2-Mini-12G.gguf is distributed on its own model page
+(https://huggingface.co/CaryPalmer/Kintsugi-Inkling-2-Mini) under the Apache License, Version 2.0. It is a quantized
+derivative of Inkling 2 Mini by Thinking Machines (Apache License, Version 2.0): every tensor that is not a coded
+expert comes from Thinking Machines' release, and the coded experts are our fits (EXL3 trellis code). The GGUF
+metadata, the tokenizer and the chat template in the file are as in Unsloth's GGUF of Inkling 2 Mini (Apache License,
+Version 2.0). Use of the model is also subject to the Thinking Machines Model Acceptable Use Policy
+(https://thinkingmachines.ai/model-acceptable-use-policy). If you let other people use the model through this server,
+you are responsible for their use too.
+
+Third-party software in this bundle:
+
+1. The engine in bin/ (llama-server, the other llama tools and the libggml / libllama / libmtmd shared libraries) is a
+   fork of llama.cpp / ggml (ggml-org and contributors), MIT License: Copyright (c) 2023-2026 The ggml authors.
+   Full text: licenses/LICENSE-llama.cpp.
+   It includes:
+   - the Inkling 2 Mini model code, the banded flash-attention kernel and the Inkling chat parser, ported from
+     Unsloth's llama.cpp mix b12588-mix-c0c3de8 (MIT License, the ggml authors and Unsloth) and from upstream
+     llama.cpp pull requests by Piotr Wilkin, Aldehir Rojas and Xuan-Son Nguyen, with upstream CUDA
+     mixture-of-experts commits (see CREDITS.md). Full text: licenses/LICENSE-llama.cpp-unsloth-mix.
+   - Project Maya (maya-inkling-mini by Alexey Fateev, the Inkling branch of Project Maya v1.1.70,
+     https://github.com/mw00/project-maya; Windows port by cobra91), MIT License: Copyright (c) 2026 Peasant Smith
+     and the Project Maya contributors; Copyright (c) 2026 Niko1221 and the Strata contributors. Full text:
+     licenses/LICENSE-project-maya. The engine's fused launch ops are our own kernels after an idea that
+     maya-inkling-mini describes; they copy no Maya code. A file that takes code from Project Maya names it in its
+     header, under this licence.
+   - the EXL3 trellis kernels from exllamav3 (turboderp), which run the coded experts, MIT License,
+     Copyright (c) 2025 Turboderp. Full text: licenses/LICENSE-exllamav3.
+   - cpp-httplib (Yuji Hirose, MIT), nlohmann/json (Niels Lohmann, MIT), and the hash and other vendored components of
+     llama.cpp under their own licences: licenses/vendor/.
+   The fork's changes (the Escha / EXL3 trellis op for the experts, the tiered K/V cache, the quantized K/V in the
+   banded kernel, background and delta saves, the host-memory fallback for older drivers, the repetition guard, the
+   two-slot mode and the other serving changes) are under the same MIT License. The Escha op for ggml comes from
+   Ajay9o9's llama.cpp-escha (MIT). The engine source of this build is a release asset
+   (Kintsugi-Inkling-2-Mini-v1.0-engine-src-a20cc419b.tar.gz).
+
+2. NVIDIA CUDA 12.8 runtime libraries in bin/ (libcudart.so.12, libcublas.so.12, libcublasLt.so.12) are NVIDIA's
+   binaries, redistributed unmodified under the NVIDIA CUDA Toolkit End User License Agreement
+   (https://docs.nvidia.com/cuda/eula/), which lists them as redistributable. They are not covered by our licences and
+   are not open source. The NVIDIA driver (libcuda) is not in this bundle; it comes with your driver installation.
+
+3. The layer (layer/) comes from our own Bonsai / Mirai serving layer. Its sandbox tools (off in this build) would use
+   the Python package wasmtime (Bytecode Alliance, Apache-2.0 WITH LLVM-exception); it is not in this bundle and not
+   needed.
+
+4. bin/libgomp.so.1: the GCC OpenMP runtime library (GNU Offloading and Multi Processing Runtime Library), unmodified,
+   from the Ubuntu package libgomp1 12.3.0-1ubuntu1~22.04. Licence: GPL-3.0-or-later WITH GCC-exception-3.1 (the GCC
+   Runtime Library Exception 3.1); texts in licenses/LICENSE-libgomp-GPL-3.0 and licenses/LICENSE-libgomp-GCC-RLE-3.1.
+   It is not covered by our licences. Corresponding source:
+   https://launchpad.net/ubuntu/+source/gcc-12/12.3.0-1ubuntu1~22.04
+
+Data and tools used to make the model (not in this bundle): the public corpus of the Qwen3.8-27B quant challenge
+(StillDeadcode, CC BY 4.0, https://creativecommons.org/licenses/by/4.0/); we used its calibration part to capture the
+Hessians and its public part as the golden set to measure the file. exllamav3's quantize_exl3 (turboderp, MIT) made
+the fits; the coded experts use the Escha W2 layout (Escha Labs).
+
+Full credits: CREDITS.md. No person or company named here endorses or sponsors this project.
