@@ -32,6 +32,7 @@ Third-party software in this bundle:
      Copyright (c) 2025 Turboderp. Full text: licenses/LICENSE-exllamav3.
    - cpp-httplib (Yuji Hirose, MIT), nlohmann/json (Niels Lohmann, MIT), and the hash and other vendored components of
      llama.cpp under their own licences: licenses/vendor/.
+   - the built-in web chat page (llama.cpp tools/ui) and the npm code in it: licenses/web-ui-THIRD-PARTY.txt.
    The fork's changes (the Escha / EXL3 trellis op for the experts, the tiered K/V cache, the quantized K/V in the
    banded kernel, background and delta saves, the host-memory fallback for older drivers, the repetition guard, the
    two-slot mode and the other serving changes) are under the same MIT License. The Escha op for ggml comes from
