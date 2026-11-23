@@ -41,7 +41,7 @@ Piotr Wilkin, Daniel Han, Aldehir Rojas and Xuan-Son Nguyen. Full list: [CREDITS
 ![Kintsugi for Inkling 2 Mini](inkling-card.png)
 
 
-**How it was made:** the method, the evidence and the tests behind these numbers are in the paper "Kintsugi: Find and Repair Quantization Damage Where Tasks Break, Not Where Averages Look": https://github.com/professorpalmer/kintsugi-method (DOI [10.5281/zenodo.24455576](https://doi.org/10.5281/zenodo.24455576))
+**How it was made:** the method, the evidence and the tests behind these numbers are in the paper "Kintsugi: Find and Repair Quantization Damage Where Tasks Break, Not Where Averages Look": https://github.com/professorpalmer/kintsugi-method (DOI [10.5281/zenodo.24455575](https://doi.org/10.5281/zenodo.24455575))
 
 ## Hardware
 

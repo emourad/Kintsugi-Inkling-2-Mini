@@ -23,7 +23,7 @@ Thinking Machines' Inkling 2 Mini in our own 2-3 bit file, made to run on one 12
 ![Kintsugi for Inkling 2 Mini](https://raw.githubusercontent.com/professorpalmer/Kintsugi-Inkling-2-Mini/main/inkling-card.png)
 
 
-**How it was made:** the method, the evidence and the tests behind these numbers are in the paper "Kintsugi: Find and Repair Quantization Damage Where Tasks Break, Not Where Averages Look": https://github.com/professorpalmer/kintsugi-method (DOI [10.5281/zenodo.24455576](https://doi.org/10.5281/zenodo.24455576))
+**How it was made:** the method, the evidence and the tests behind these numbers are in the paper "Kintsugi: Find and Repair Quantization Damage Where Tasks Break, Not Where Averages Look": https://github.com/professorpalmer/kintsugi-method (DOI [10.5281/zenodo.24455575](https://doi.org/10.5281/zenodo.24455575))
 
 ## What this is
 
