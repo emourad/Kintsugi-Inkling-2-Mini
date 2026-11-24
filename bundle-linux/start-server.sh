@@ -76,13 +76,21 @@ if [ ! -f "$MODEL" ]; then
   echo "  (check it with: sha256sum models/$MODEL_NAME). Or set INKLING_MODEL to the file's path."
   exit 1
 fi
-LLAMA_SERVER="${LLAMA_SERVER:-$(command -v llama-server 2>/dev/null)}"
 
-if [ -z "$LLAMA_SERVER" ] || [ ! -x "$LLAMA_SERVER" ]; then
+# The engine of this bundle (bin/llama-server) is used first; a LLAMA_SERVER set in the environment overrides it.
+# Do not use a llama-server found on PATH: another build, mixed with bin/ it aborts (GGML_ASSERT in arg.cpp).
+if [ -n "${LLAMA_SERVER:-}" ]; then
+  echo "using LLAMA_SERVER=$LLAMA_SERVER (not the bundled engine)"
+else
+  LLAMA_SERVER="$BIN/llama-server"
+fi
+
+if [ ! -x "$LLAMA_SERVER" ]; then
   echo "llama-server not found."
   echo "Set LLAMA_SERVER to its full executable path."
   exit 1
 fi
+
 command -v nvidia-smi > /dev/null || { echo "nvidia-smi not found: install the NVIDIA driver"; exit 1; }
 command -v curl > /dev/null || { echo "curl not found: install curl (the start uses it to check the server)"; exit 1; }
 EFFORT_WORDS="none,minimal,low,medium,high,xhigh,max"
@@ -127,9 +135,13 @@ no_gpu_message() {
     && echo "the engine could not use the GPU (see $1): update the NVIDIA driver to $MIN_DRIVER or newer"
 }
 SP=""; LP=""
-stop_no_gpu() {
+# stop_fail MESSAGE: the start failed. Stop the engine and the layer that this start made, remove their pid files, print
+# MESSAGE, exit 1. A layer left behind keeps the client port, and the next start fails with "Address already in use"; an
+# engine left behind holds its VRAM. Both are easy to miss when the script is run once and its exit code is not read.
+stop_fail() {
   [ -n "$SP" ] && kill -9 "$SP" 2> /dev/null
   [ -n "$LP" ] && kill -9 "$LP" 2> /dev/null
+  [ -n "${LOGS:-}" ] && rm -f "$LOGS/server-$PORT.pid" "$LOGS/layer-$PORT.pid"
   echo "$1"
   exit 1
 }
@@ -377,13 +389,14 @@ if [ $WAIT = 0 ]; then
     { ! alive "$SP" || grep -q -F 'load_model: loading model' "$LOG" 2> /dev/null; } && break
     sleep 1
   done
-  M="$(no_gpu_message "$LOG")"; [ -n "$M" ] && stop_no_gpu "$M"
+  M="$(no_gpu_message "$LOG")"; [ -n "$M" ] && stop_fail "$M"
+  alive "$SP" || stop_fail "server stopped during start: see $LOG"
   exit 0
 fi
 AUTH=(); [ -n "$KEY_FILE" ] && AUTH=(-H "Authorization: Bearer $(tr -d '\r\n' < "$KEY_FILE")")
 for i in $(seq 1 150); do
   if curl -sf -m 3 "http://127.0.0.1:$PORT/health" > /dev/null 2>&1; then
-    M="$(no_gpu_message "$LOG")"; [ -n "$M" ] && stop_no_gpu "$M"
+    M="$(no_gpu_message "$LOG")"; [ -n "$M" ] && stop_fail "$M"
     # Warm-up, two requests in at most 600 s: (1) a chat request (about 1,100 tokens in, 8 out, no thinking); (2) about
     # 100 decoded tokens on the server port (/completion, about 200 tokens in): longer decodes take more first-use memory
     # (CUDA graphs, buffers; G4 saw +250 MiB in the first decodes after a chat-only warm-up). The engine takes that
@@ -411,11 +424,10 @@ for i in $(seq 1 150); do
     exit 0
   fi
   if ! alive "$SP"; then
-    M="$(no_gpu_message "$LOG")"; [ -n "$M" ] && stop_no_gpu "$M"
-    echo "server stopped during load: see $LOG"; exit 1
+    M="$(no_gpu_message "$LOG")"; [ -n "$M" ] && stop_fail "$M"
+    stop_fail "server stopped during load: see $LOG"
   fi
-  if [ -n "$LP" ] && ! alive "$LP"; then echo "layer stopped: see $LAYER_LOG"; exit 1; fi
+  if [ -n "$LP" ] && ! alive "$LP"; then stop_fail "layer stopped: see $LAYER_LOG"; fi
   sleep 2
 done
-echo "not ready after 300 s: see $LOG"
-exit 1
+stop_fail "not ready after 300 s: see $LOG"
